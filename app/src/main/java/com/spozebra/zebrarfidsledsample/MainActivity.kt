@@ -1,21 +1,28 @@
 package com.spozebra.zebrarfidsledsample
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.spozebra.zebrarfidsledsample.barcode.BarcodeScannerInterface
 import com.spozebra.zebrarfidsledsample.barcode.IBarcodeScannedListener
 import com.spozebra.zebrarfidsledsample.barcode.TerminalScanDWInterface
 import com.spozebra.zebrarfidsledsample.rfid.IRFIDReaderListener
 import com.spozebra.zebrarfidsledsample.rfid.RFIDReaderInterface
 
+
 class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderListener {
 
     private val TAG: String = MainActivity::class.java.simpleName
+    private val BLUETOOTH_PERMISSION_REQUEST_CODE = 100
 
     private lateinit var progressBar: ProgressBar
     private lateinit var listViewRFID: ListView
@@ -65,8 +72,46 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
             configureDevice()
         }
 
-        // Setup RFID & Scanner
-        configureDevice()
+
+        //Scanner Initializations
+        //Handling Runtime BT permissions for Android 12 and higher
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.BLUETOOTH_SCAN,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ),
+                    BLUETOOTH_PERMISSION_REQUEST_CODE
+                )
+            } else {
+                configureDevice()
+            }
+        } else {
+            configureDevice()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == BLUETOOTH_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                configureDevice()
+            } else {
+                Toast.makeText(this, "Bluetooth Permissions not granted", Toast.LENGTH_SHORT).show()
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     private fun configureDevice() {

@@ -2,10 +2,10 @@
 Sample app that shows how to use properly our Zebra SDK to control both RFID antenna and scanner of Zebra RFID Sleds.
 If your RFID sled does not have the embedded scanner (available on premium versions only) and you're using a Zebra device connected thru eConnex, you could trigger the scan from the device directly from the gun button - See this link as a reference: https://techdocs.zebra.com/dcs/rfid/android/2-0-2-94/tutorials/triggerremapping/
 
-***Right now, DataWedge does not support embedded scan engine of RFD40 and RFD90, therefore you should use the scanner module of Zebra RFID SDK to make it run. We expect to include this funcionnality in DataWedge by the end of 2023***
+***Right now, DataWedge does not support embedded scan engine of RFD90, therefore you should use the scanner module of Zebra RFID SDK to make it run. We expect to include this funcionnality in DataWedge by the end of 2023***
 
 ## Hardware Requirements
-- One Zebra RFID sled: RFD40 or RFD90
+- Zebra RFD90
 - A device running A8 or above
 
 ## Demo

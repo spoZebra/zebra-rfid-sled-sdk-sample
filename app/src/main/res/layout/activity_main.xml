@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#3F51B5"
     tools:context=".MainActivity">
 
 
@@ -25,15 +24,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="Sled Scan"
-            android:textColor="#FFFFFF" />
+            android:text="Sled Scan" />
 
         <RadioButton
             android:id="@+id/radiobtn_terminal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Terminal Scan"
-            android:textColor="#FFFFFF" />
+            android:text="Terminal Scan" />
 
     </RadioGroup>
 
@@ -43,7 +40,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:text="RFID Tags"
-        android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -81,7 +77,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Barcodes"
-        android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -93,7 +88,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="Select Scan Mode"
-        android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

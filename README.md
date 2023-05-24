@@ -1,4 +1,4 @@
-# ZebraRFIDSledSample
+# Zebra RFID Sled SDK sample
 Sample app that shows how to use properly our Zebra SDK to control both RFID antenna and scanner of Zebra RFID Sleds.
 If your RFID sled does not have the embedded scanner (available on premium versions only) and you're using a Zebra device connected thru eConnex, you could trigger the scan from the device directly from the gun button - See this link as a reference: https://techdocs.zebra.com/dcs/rfid/android/2-0-2-94/tutorials/triggerremapping/
 

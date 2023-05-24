@@ -16,15 +16,15 @@ https://user-images.githubusercontent.com/101400857/236826323-47592302-3d2d-4068
 
 - **Use embedded scan engine of RFID Sled**. 
 This can be achieve by importing the library *com.zebra.scannercontrol* available within the RFID SDK.
-https://github.com/spoZebra/ZebraRFIDSledSample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/barcode/BarcodeScannerInterface.kt#L15-L52
+https://github.com/spoZebra/zebra-rfid-sled-sdk-sample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/barcode/BarcodeScannerInterface.kt#L15-L52
 
 - **Use Zebra device scan engine**. This can be achieved by modifing trigger settings with our RFID SDK and creating a DataWedge profile to receive barcodes via intent.
-RFID SDK setup: https://github.com/spoZebra/ZebraRFIDSledSample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/rfid/RFIDReaderInterface.kt#L72-L73
-DataWedge profile setup: https://github.com/spoZebra/ZebraRFIDSledSample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/barcode/TerminalScanDWInterface.kt#L18-L64
+RFID SDK setup: https://github.com/spoZebra/zebra-rfid-sled-sdk-sample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/rfid/RFIDReaderInterface.kt#L72-L73
+DataWedge profile setup: https://github.com/spoZebra/zebra-rfid-sled-sdk-sample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/barcode/TerminalScanDWInterface.kt#L18-L64
 
 - **Configure RFID**. Standard configuration to read RFID tags.
-Configuration: https://github.com/spoZebra/ZebraRFIDSledSample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/rfid/RFIDReaderInterface.kt#L19-L85
-Read tags: https://github.com/spoZebra/ZebraRFIDSledSample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/rfid/RFIDReaderInterface.kt#L108-L116
+Configuration: https://github.com/spoZebra/zebra-rfid-sled-sdk-sample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/rfid/RFIDReaderInterface.kt#L19-L85
+Read tags: https://github.com/spoZebra/zebra-rfid-sled-sdk-sample/blob/811cf39d2a708118fd272d515b618b4c4f4f8d0b/app/src/main/java/com/spozebra/zebrarfidsledsample/rfid/RFIDReaderInterface.kt#L108-L116
 
 ## Zebra RFID SDK Full documentation
 https://techdocs.zebra.com/dcs/rfid/

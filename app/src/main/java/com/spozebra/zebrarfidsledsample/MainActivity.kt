@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
 
     private val TAG: String = MainActivity::class.java.simpleName
     private val BLUETOOTH_PERMISSION_REQUEST_CODE = 100
+    private val ACCESS_FINE_LOCATION_REQUEST_CODE = 99
 
     private lateinit var progressBar: ProgressBar
     private lateinit var listViewRFID: ListView
@@ -74,9 +75,9 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
 
 
         //Scanner Initializations
-        //Handling Runtime BT permissions for Android 12 and higher
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION_REQUEST_CODE);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.BLUETOOTH_CONNECT

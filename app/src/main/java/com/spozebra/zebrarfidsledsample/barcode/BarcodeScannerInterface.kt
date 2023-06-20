@@ -11,8 +11,9 @@ import java.util.*
 
 class BarcodeScannerInterface(val listener : IBarcodeScannedListener): IDcsSdkApiDelegate {
     private var sdkHandler: SDKHandler? = null
+    private var scannerInfoList : ArrayList<DCSScannerInfo> = ArrayList()
 
-    fun connect(context : Context) : Boolean {
+    fun getAvailableScanners(context : Context) : ArrayList<DCSScannerInfo> {
         if(sdkHandler == null)
             sdkHandler = SDKHandler(context)
 
@@ -31,11 +32,13 @@ class BarcodeScannerInterface(val listener : IBarcodeScannedListener): IDcsSdkAp
         sdkHandler!!.dcssdkSubsribeForEvents(notifications_mask)
         sdkHandler!!.dcssdkEnableAvailableScannersDetection(true)
 
-        val scannerInfoList : ArrayList<DCSScannerInfo> = ArrayList()
         sdkHandler!!.dcssdkGetAvailableScannersList(scannerInfoList)
+        return scannerInfoList
+    }
 
+    fun connectToScanner(scannerID : Int) : Boolean{
         try {
-            val scanner = scannerInfoList[0]
+            val scanner = scannerInfoList.first { x -> x.scannerID == scannerID }
             if(scanner.isActive)
                 return true
 

@@ -1,10 +1,8 @@
 package com.spozebra.zebrarfidsledsample
 
 import android.Manifest
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.app.AlertDialog
+import android.content.*
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -30,10 +28,10 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
     private lateinit var listViewBarcodes: ListView
     private lateinit var radioBtnGroup: RadioGroup
 
-    private var scanConnectionMode : ScanConnectionEnum = ScanConnectionEnum.SledScan
-    private var isDWRegistered : Boolean = false
-    private var barcodeList : MutableList<String> = mutableListOf()
-    private var tagsList : MutableList<String> = mutableListOf()
+    private var scanConnectionMode: ScanConnectionEnum = ScanConnectionEnum.SledScan
+    private var isDWRegistered: Boolean = false
+    private var barcodeList: MutableList<String> = mutableListOf()
+    private var tagsList: MutableList<String> = mutableListOf()
 
 
     private val dataWedgeReceiver = object : BroadcastReceiver() {
@@ -57,14 +55,15 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
         listViewBarcodes = findViewById(R.id.listViewBarcodes)
         radioBtnGroup = findViewById(R.id.radioGroup)
 
-        val tagsLIstAdapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,tagsList)
+        val tagsLIstAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, tagsList)
         listViewRFID.adapter = tagsLIstAdapter
 
-        val barcodeListAdapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,barcodeList)
+        val barcodeListAdapter =
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, barcodeList)
         listViewBarcodes.adapter = barcodeListAdapter
 
         radioBtnGroup.setOnCheckedChangeListener { _, checkedId ->
-            when(checkedId){
+            when (checkedId) {
                 R.id.radiobtn_sled -> scanConnectionMode = ScanConnectionEnum.SledScan
                 R.id.radiobtn_terminal -> scanConnectionMode = ScanConnectionEnum.TerminalScan
             }
@@ -75,8 +74,16 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
 
 
         //Scanner Initializations
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION_REQUEST_CODE);
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                ACCESS_FINE_LOCATION_REQUEST_CODE
+            );
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -116,44 +123,88 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
     }
 
     private fun configureDevice() {
-        progressBar.visibility = ProgressBar.VISIBLE
-        Thread {
-            var connectScannerResult = false
 
-            // CONFIGURE SCANNER
-            // If terminal scan was selected, we must use DataWedge instead of the SDK
-            if (scanConnectionMode == ScanConnectionEnum.TerminalScan)
-            {
-                var dwConf = TerminalScanDWInterface(applicationContext);
-                dwConf.configure()
-                connectScannerResult = true
+        // CONFIGURE SCANNER
+        // If terminal scan was selected, we must use DataWedge instead of the SDK
+        if (scanConnectionMode == ScanConnectionEnum.TerminalScan) {
+            var dwConf = TerminalScanDWInterface(applicationContext);
+            dwConf.configure()
 
-                // Register DW receiver
-                registerReceivers()
+            // Register DW receiver
+            registerReceivers()
+
+            // RFID
+            Thread { configureRFID() }.start()
+        } else {
+            // Configure BT Scanner
+            if (scannerInterface == null)
+                scannerInterface = BarcodeScannerInterface(this)
+
+            var availableScannerList = scannerInterface!!.getAvailableScanners(applicationContext)
+            if(availableScannerList.size > 1) {
+                val items = availableScannerList.map { x -> x.scannerName }.toTypedArray()
+                var checkedItem = 0
+
+                val dialog = AlertDialog.Builder(this)
+                    .setTitle("Choose Scanner")
+                    .setSingleChoiceItems(items, checkedItem) { _, which -> checkedItem = which }
+                    .setPositiveButton("Connect") { _, _ ->
+                        configureScanner(availableScannerList[checkedItem].scannerID)
+                    }
+
+                val alert = dialog.create()
+                alert.setCanceledOnTouchOutside(false)
+                alert.show()
             }
-            else {
-                // Configure BT Scanner
-                if (scannerInterface == null)
-                    scannerInterface = BarcodeScannerInterface(this)
-
-                connectScannerResult = scannerInterface!!.connect(applicationContext)
+            else if(availableScannerList.first() != null){
+                configureScanner(availableScannerList.first().scannerID)
             }
-
-            // Configure RFID
-            if (rfidInterface == null)
-                rfidInterface = RFIDReaderInterface(this)
-
-            var connectRFIDResult = rfidInterface!!.connect(applicationContext, scanConnectionMode)
-
-            runOnUiThread {
-                progressBar.visibility = ProgressBar.GONE
+            else{
                 Toast.makeText(
                     applicationContext,
-                    if (connectRFIDResult && connectScannerResult) "Reader & Scanner are connected!" else "Connection ERROR!",
+                    "No available scanner",
                     Toast.LENGTH_LONG
                 ).show()
             }
+        }
+
+
+    }
+
+    private fun configureScanner(scannerID: Int) {
+        Thread {
+            progressBar.visibility = ProgressBar.VISIBLE
+            val connectScannerResult =
+                scannerInterface!!.connectToScanner(scannerID)
+
+            runOnUiThread {
+                Toast.makeText(
+                    applicationContext,
+                    if (connectScannerResult) "Scanner connected!" else "Scanner connection ERROR!",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
+            // RFID
+            configureRFID()
         }.start()
+    }
+
+    private fun configureRFID() {
+        // Configure RFID
+        if (rfidInterface == null)
+            rfidInterface = RFIDReaderInterface(this)
+
+        var connectRFIDResult = rfidInterface!!.connect(applicationContext, scanConnectionMode)
+
+        runOnUiThread {
+            progressBar.visibility = ProgressBar.GONE
+            Toast.makeText(
+                applicationContext,
+                if (connectRFIDResult) "RFID Reader connected!" else "RFID Reader connection ERROR!",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     // Create filter for the broadcast intent
@@ -189,7 +240,7 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
         dispose()
     }
 
-    private fun dispose(){
+    private fun dispose() {
         try {
             if (isDWRegistered)
                 unregisterReceiver(dataWedgeReceiver)
@@ -202,8 +253,8 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
             if (scannerInterface != null) {
                 scannerInterface!!.onDestroy()
             }
+        } catch (ex: Exception) {
         }
-        catch (ex : Exception){}
     }
 
     companion object {

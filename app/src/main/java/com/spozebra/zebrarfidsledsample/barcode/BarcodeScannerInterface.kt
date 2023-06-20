@@ -17,7 +17,6 @@ class BarcodeScannerInterface(val listener : IBarcodeScannedListener): IDcsSdkAp
             sdkHandler = SDKHandler(context)
 
         sdkHandler!!.dcssdkSetOperationalMode(DCSSDKDefs.DCSSDK_MODE.DCSSDK_OPMODE_BT_NORMAL)
-        sdkHandler!!.dcssdkSetOperationalMode(DCSSDKDefs.DCSSDK_MODE.DCSSDK_OPMODE_BT_LE)
         sdkHandler!!.dcssdkSetOperationalMode(DCSSDKDefs.DCSSDK_MODE.DCSSDK_OPMODE_USB_CDC)
 
         sdkHandler!!.dcssdkSetDelegate(this);

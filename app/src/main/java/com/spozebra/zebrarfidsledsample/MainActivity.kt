@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
     private lateinit var listViewBarcodes: ListView
     private lateinit var radioBtnGroup: RadioGroup
 
-    private var scanConnectionMode: ScanConnectionEnum = ScanConnectionEnum.SledScan
+    private var scanConnectionMode: ScanConnectionEnum = ScanConnectionEnum.TerminalScan
     private var isDWRegistered: Boolean = false
     private var barcodeList: MutableList<String> = mutableListOf()
     private var tagsList: MutableList<String> = mutableListOf()
@@ -189,11 +189,11 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
 
     private fun configureScanner(scannerID: Int) {
         Thread {
-            progressBar.visibility = ProgressBar.VISIBLE
             val connectScannerResult =
                 scannerInterface!!.connectToScanner(scannerID)
 
             runOnUiThread {
+                progressBar.visibility = ProgressBar.VISIBLE
                 Toast.makeText(
                     applicationContext,
                     if (connectScannerResult) "Scanner connected!" else "Scanner connection ERROR!",

@@ -2,6 +2,8 @@ package com.spozebra.zebrarfidsledsample
 
 import android.Manifest
 import android.app.AlertDialog
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.Build
@@ -15,6 +17,9 @@ import com.spozebra.zebrarfidsledsample.barcode.IBarcodeScannedListener
 import com.spozebra.zebrarfidsledsample.barcode.TerminalScanDWInterface
 import com.spozebra.zebrarfidsledsample.rfid.IRFIDReaderListener
 import com.spozebra.zebrarfidsledsample.rfid.RFIDReaderInterface
+import android.content.Context
+import android.content.IntentFilter
+import androidx.annotation.RequiresPermission
 
 
 class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderListener {
@@ -107,6 +112,7 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String?>,
@@ -122,7 +128,17 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private fun configureDevice() {
+        val bluetoothManager = getSystemService(BluetoothManager::class.java)
+        val bluetoothAdapter = bluetoothManager.adapter
+        if (bluetoothAdapter == null) {
+            // Device doesn't support Bluetooth
+        }
+        if (bluetoothAdapter?.isEnabled == false) {
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(enableBtIntent, 0)
+        }
 
         // CONFIGURE SCANNER
         // If terminal scan was selected, we must use DataWedge instead of the SDK
@@ -156,7 +172,7 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
                 alert.setCanceledOnTouchOutside(false)
                 alert.show()
             }
-            else if(availableScannerList.first() != null){
+            else if(availableScannerList.firstOrNull() != null){
                 configureScanner(availableScannerList.first().scannerID)
             }
             else{
@@ -217,8 +233,23 @@ class MainActivity : AppCompatActivity(), IBarcodeScannedListener, IRFIDReaderLi
         // register to received broadcasts via DataWedge scanning
         filter.addAction("$packageName.ACTION")
         filter.addAction("$packageName.service.ACTION")
-        registerReceiver(dataWedgeReceiver, filter)
-        isDWRegistered = true
+        // *** FIX: Specify the export behavior for Android 14+ ***
+        // DataWedge is an external app, so the receiver must be exported.
+        val receiverFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API 33+
+            ContextCompat.RECEIVER_EXPORTED // Use RECEIVER_EXPORTED as broadcasts come from another app
+        } else {
+            0 // No flags needed for older versions
+        }
+
+        // Use ContextCompat.registerReceiver for compatibility
+        ContextCompat.registerReceiver(
+            this,
+            dataWedgeReceiver,
+            filter,
+            receiverFlags
+        )
+        isDWRegistered = true // Assuming you have a boolean to track registration state, though not shown in the snippet for this method
+
     }
 
     override fun newBarcodeScanned(barcode: String?) {

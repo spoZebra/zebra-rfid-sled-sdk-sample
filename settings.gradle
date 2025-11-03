@@ -14,4 +14,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "ZebraRfidSledSample"
 include ':app'
-include ':RFIDAPI3Library'
